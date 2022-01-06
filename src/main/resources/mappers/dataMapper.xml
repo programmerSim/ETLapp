@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.data.etldata.mapper.DataMapper">
+
+    <!-- CSV 파일 데이터 저장 -->
+    <insert id="loadCsvFile" parameterType="String">
+        load data local infile #{filePath}
+        into table sim.data
+        columns terminated by ','
+        enclosed by '"'
+        lines terminated by '\n'
+        (@csv_col1, @csv_col2, @csv_col3, @csv_col4, @csv_col5, @csv_col6)
+        set time = @csv_col1, diskioName = @csv_col2, metricName = @csv_col3, value = @csv_col4, resourceId = @csv_col5, resourceName = @csv_col6
+    </insert>
+    
+    <select id="extractDataByMinute" parameterType="java.sql.Timestamp" resultType="ExtractContentDto">
+        select min(date_format(time, '%Y-%m-%d %T')) as minTime
+             , resourceName
+             , max(case when metricName = 'basic_ping.average_response_ms' then value else 0 end) as 'basic_ping_average_response_ms'
+             , max(case when metricName = 'basic_ping.maximum_response_ms' then value else 0 end) as 'basic_ping_maximum_response_ms'
+             , max(case when metricName = 'basic_ping.minimum_response_ms' then value else 0 end) as 'basic_ping_minimum_response_ms'
+             , max(case when metricName = 'basic_ping.packets_received' then value else 0 end) as 'basic_ping_packets_received'
+             , max(case when metricName = 'basic_ping.packets_transmitted' then value else 0 end) as 'basic_ping_packets_transmitted'
+             , max(case when metricName = 'basic_ping.percent_packet_loss' then value else 0 end) as 'basic_ping_percent_packet_loss'
+             , max(case when metricName = 'basic_ping.result_code' then value else 0 end) as 'basic_ping_result_code'
+             , max(case when metricName = 'basic_ping.standard_deviation_ms' then value else 0 end) as 'basic_ping_standard_deviation_ms'
+             , max(case when metricName = 'bond.status' then value else 0 end) as 'bond_status'
+             , max(case when metricName = 'bond_slave.failures' then value else 0 end) as 'bond_slave_failures'
+             , max(case when metricName = 'bond_slave.status' then value else 0 end) as 'bond_slave_status'
+             , max(case when metricName = 'command_time.df_result' then value else 0 end) as 'command_time_df_result'
+             , max(case when metricName = 'command_time.df_time' then value else 0 end) as 'command_time_df_time'
+             , max(case when metricName = 'command_time.ls_result' then value else 0 end) as 'command_time_ls_result'
+             , max(case when metricName = 'command_time.ls_time' then value else 0 end) as 'command_time_ls_time'
+             , max(case when metricName = 'command_time.sar_result' then value else 0 end) as 'command_time_sar_result'
+             , max(case when metricName = 'command_time.sar_time' then value else 0 end) as 'command_time_sar_time'
+             , max(case when metricName = 'command_time.top_result' then value else 0 end) as 'command_time_top_result'
+             , max(case when metricName = 'command_time.top_time' then value else 0 end) as 'command_time_top_time'
+             , max(case when metricName = 'command_time.touch_result' then value else 0 end) as 'command_time_touch_result'
+             , max(case when metricName = 'command_time.touch_time' then value else 0 end) as 'command_time_touch_time'
+             , max(case when metricName = 'cpu.queue_perc' then value else 0 end) as 'cpu_queue_perc'
+             , max(case when metricName = 'cpu.usage_active' then value else 0 end) as 'cpu_usage_active'
+             , max(case when metricName = 'cpu.usage_guest' then value else 0 end) as 'cpu_usage_guest'
+             , max(case when metricName = 'cpu.usage_guest_nice' then value else 0 end) as 'cpu_usage_guest_nice'
+             , max(case when metricName = 'cpu.usage_idle' then value else 0 end) as 'cpu_usage_idle'
+             , max(case when metricName = 'cpu.usage_iowait' then value else 0 end) as 'cpu_usage_iowait'
+             , max(case when metricName = 'cpu.usage_irq' then value else 0 end) as 'cpu_usage_irq'
+             , max(case when metricName = 'cpu.usage_nice' then value else 0 end) as 'cpu_usage_nice'
+             , max(case when metricName = 'cpu.usage_perc' then value else 0 end) as 'cpu_usage_perc'
+             , max(case when metricName = 'cpu.usage_softirq' then value else 0 end) as 'cpu_usage_softirq'
+             , max(case when metricName = 'cpu.usage_steal' then value else 0 end) as 'cpu_usage_steal'
+             , max(case when metricName = 'cpu.usage_system' then value else 0 end) as 'cpu_usage_system'
+             , max(case when metricName = 'cpu.usage_user' then value else 0 end) as 'cpu_usage_user'
+             , max(case when metricName = 'disk.free' then value else 0 end) as 'disk_free'
+             , max(case when metricName = 'disk.inodes_free' then value else 0 end) as 'disk_inodes_free'
+             , max(case when metricName = 'disk.inodes_total' then value else 0 end) as 'disk_inodes_total'
+             , max(case when metricName = 'disk.inodes_used' then value else 0 end) as 'disk_inodes_used'
+             , max(case when metricName = 'disk.inodes_used_perc' then value else 0 end) as 'disk_inodes_used_perc'
+             , max(case when metricName = 'disk.mode_code' then value else 0 end) as 'disk_mode_code'
+             , max(case when metricName = 'disk.total' then value else 0 end) as 'disk_total'
+             , max(case when metricName = 'disk.used' then value else 0 end) as 'disk_used'
+             , max(case when metricName = 'disk.used_percent' then value else 0 end) as 'disk_used_percent'
+             , max(case when metricName = 'diskio.iops_in_progress' then value else 0 end) as 'diskio_iops_in_progress'
+             , max(case when metricName = 'diskio.io_avgqu_sz' then value else 0 end) as 'diskio_io_avgqu_sz'
+             , max(case when metricName = 'diskio.io_await' then value else 0 end) as 'diskio_io_await'
+             , max(case when metricName = 'diskio.io_cpu_perc' then value else 0 end) as 'diskio_io_cpu_perc'
+             , max(case when metricName = 'diskio.io_svctm' then value else 0 end) as 'diskio_io_svctm'
+             , max(case when metricName = 'diskio.io_time' then value else 0 end) as 'diskio_io_time'
+             , max(case when metricName = 'diskio.io_util' then value else 0 end) as 'diskio_io_util'
+             , max(case when metricName = 'diskio.reads' then value else 0 end) as 'diskio_reads'
+             , max(case when metricName = 'diskio.read_bytes' then value else 0 end) as 'diskio_read_bytes'
+             , max(case when metricName = 'diskio.read_bytes_sec' then value else 0 end) as 'diskio_read_bytes_sec'
+             , max(case when metricName = 'diskio.read_req_sec' then value else 0 end) as 'diskio_read_req_sec'
+             , max(case when metricName = 'diskio.read_time' then value else 0 end) as 'diskio_read_time'
+             , max(case when metricName = 'diskio.read_time_sec' then value else 0 end) as 'diskio_read_time_sec'
+             , max(case when metricName = 'diskio.weighted_io_time' then value else 0 end) as 'diskio_weighted_io_time'
+             , max(case when metricName = 'diskio.writes' then value else 0 end) as 'diskio_writes'
+             , max(case when metricName = 'diskio.write_bytes' then value else 0 end) as 'diskio_write_bytes'
+             , max(case when metricName = 'diskio.write_bytes_sec' then value else 0 end) as 'diskio_write_bytes_sec'
+             , max(case when metricName = 'diskio.write_req_sec' then value else 0 end) as 'diskio_write_req_sec'
+             , max(case when metricName = 'diskio.write_time' then value else 0 end) as 'diskio_write_time'
+             , max(case when metricName = 'diskio.write_time_sec' then value else 0 end) as 'diskio_write_time_sec'
+             , max(case when metricName = 'disk_mount.status' then value else 0 end) as 'disk_mount_status'
+        from sim.data
+        where time between #{time} and date_add(#{time}, interval 60 second)
+        group by resourceName
+        order by minTime, resourceName
+    </select>
+
+
+</mapper>
