@@ -1,2 +1,2 @@
-# ETLapp
+# ETL application
 etl
